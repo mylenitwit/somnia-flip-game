@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SomFlip Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>SomFlip Admin Panel</h1>
+    <button id="withdrawButton">Withdraw Funds</button>
+    <input type="number" id="amountToWithdraw" placeholder="Amount in Ether" />
+    <div id="status"></div>
+
+    <script>
+        // Web3 instance
+        let web3;
+
+        // SomFlip contract address and ABI
+        const contractAddress = "0x35722c767158168eaa316c70e5b702a964964fc5";  // Replace with your contract address
+        const contractABI = [
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_choice",
+                        "type": "string"
+                    }
+                ],
+                "name": "flipCoin",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "receive",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "withdrawFunds",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "player",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "betAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "choice",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "result",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "payout",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "FlipResult",
+                "outputs": [],
+                "stateMutability": "event",
+                "type": "event"
+            }
+        ];
+
+        // Initialize Web3
+        window.onload = async () => {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log("Ethereum detected!");
+
+                // Initialize contract
+                const contract = new web3.eth.Contract(contractABI, contractAddress);
+                
+                // Withdraw Funds Function
+                document.getElementById("withdrawButton").onclick = async () => {
+                    const amount = document.getElementById("amountToWithdraw").value;
+                    const accounts = await web3.eth.getAccounts();
+                    const sender = accounts[0];  // Admin account (should be the same as the contract owner)
+
+                    if (amount) {
+                        try {
+                            // Check if sender is the owner
+                            const owner = await contract.methods.owner().call();
+                            if (sender.toLowerCase() !== owner.toLowerCase()) {
+                                document.getElementById("status").innerText = "Only the contract owner can withdraw funds.";
+                                return;
+                            }
+
+                            await contract.methods.withdrawFunds(web3.utils.toWei(amount, 'ether'))
+                                .send({ from: sender });
+
+                            document.getElementById("status").innerText = "Funds withdrawn successfully!";
+                        } catch (error) {
+                            document.getElementById("status").innerText = "Error: " + error.message;
+                        }
+                    } else {
+                        document.getElementById("status").innerText = "Please enter a valid amount!";
+                    }
+                };
+            } else {
+                console.log("Please install MetaMask");
+            }
+        };
+    </script>
+</body>
+</html>
