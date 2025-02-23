@@ -75,7 +75,7 @@ const SomFlip = () => {
   
         setTimeout(() => {
           setFlipResult(null);
-        }, 5000);
+        }, 10000);
       });
     }
   
@@ -214,11 +214,11 @@ const SomFlip = () => {
 
       {flipResult && (
         <div className="result-container">
-          <h3>Result:</h3>
-          <p>Player: {flipResult.player}</p>
-          <p>Your choice: {flipResult.choice}</p>
-          <p>Result: {flipResult.result}</p>
-          <p>{flipResult.payout > 0 ? `You won: ${flipResult.payout} STT` : "You lost!"}</p>
+          <h3><b>Result:</b></h3>
+          <p><b>Player:</b> {flipResult.player}</p>
+          <p><b>Your choice:</b> {flipResult.choice}</p>
+          <p><b>Result:</b> {flipResult.result}</p>
+          <p className={flipResult.payout > 0 ? "win-text" : "lose-text"}>{flipResult.payout > 0 ? `You won: ${flipResult.payout} STT` : "You lost!"}</p>
         </div>
       )}
 
