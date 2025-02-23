@@ -10,7 +10,7 @@ import headsImage from './heads.png';
 import tailsImage from './tails.png';
 import spinningImage from './flip.gif';
 
-const contractAddress = "0x35722c767158168eaa316c70e5b702a964964fc5";
+const contractAddress = "0x014f851965f281d6112fc7f6dfe8c331c413eb9b";
 const contractABI = [
   "function flipCoin(string memory _choice) external payable",
   "event FlipResult(address indexed player, uint256 betAmount, string choice, string result, uint256 payout)"
