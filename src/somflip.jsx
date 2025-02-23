@@ -3,9 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import somniaLogo from './somnia-logo-light.svg'; // Somnia logosunu içe aktar
 
-
-
-
 import headsImage from './heads.png';
 import tailsImage from './tails.png';
 import spinningImage from './flip.gif';
@@ -16,8 +13,14 @@ const contractABI = [
   "event FlipResult(address indexed player, uint256 betAmount, string choice, string result, uint256 payout)"
 ];
 
-const SOMNIA_TESTNET_ID = 50312;
-const SOMNIA_RPC_URL = "https://dream-rpc.somnia.network";
+const payoutMapping = {
+  "200000000000000000": "0.2",
+  "100000000000000000": "0.1",
+  "20000000000000000": "0.02",
+  "500000000000000000": "0.5",
+  "1000000000000000000": "1",
+  "2000000000000000000": "2"
+};
 
 const SomFlip = () => {
   const [selectedSide, setSelectedSide] = useState('Heads');
@@ -31,10 +34,12 @@ const SomFlip = () => {
   const [lastFlips, setLastFlips] = useState([]);
   const [totalWin, setTotalWin] = useState(0);
   const [totalLoss, setTotalLoss] = useState(0);
+  const [balance, setBalance] = useState(null); // Yeni: STT bakiyesi için state
+
   useEffect(() => {
     setCoinImage(selectedSide === "Heads" ? headsImage : tailsImage);
   }, [selectedSide]);
-  
+
   useEffect(() => {
     if (window.ethereum) {
       const web3Provider = new ethers.BrowserProvider(window.ethereum);
@@ -42,27 +47,36 @@ const SomFlip = () => {
     }
   }, []);
 
+  // Yeni: Cüzdan bağlandığında bakiyeyi çek
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (account && provider) {
+        const balance = await provider.getBalance(account);
+        setBalance(ethers.formatEther(balance)); // Bakiyeyi STT cinsinden göster
+      }
+    };
+
+    fetchBalance();
+  }, [account, provider]);
+
   useEffect(() => {
     if (contract) {
-      contract.on("FlipResult", (player, betAmount, choice, result, payout, event) => {
+      contract.on("FlipResult", async (player, betAmount, choice, result, payout, event) => { // async ekledik
         setIsFlipping(false);
         setFlipResult({ player, betAmount, choice, result, payout });
         setCoinImage(result === 'Heads' ? headsImage : tailsImage);
         const payoutInEther = ethers.formatEther(payout);
         const betAmountInEther = ethers.formatEther(betAmount);
-        console.log("Full Event Object:", event); // Event nesnesini komple yazdır
-      
+  
         const txHash = event.transactionHash || event.log?.transactionHash || event.receipt?.transactionHash;
-      
-        console.log("Extracted Transaction Hash:", txHash); // Çıkartılan hash'i göster
-      
+  
         setLastFlips(prevFlips => [
           {
             choice,
             result,
             payout: parseFloat(payoutInEther).toFixed(2),
             bet: parseFloat(betAmountInEther).toFixed(2),
-            txHash: txHash // TX Hash ekle
+            txHash: txHash
           },
           ...prevFlips.slice(0, 4)
         ]);
@@ -73,9 +87,17 @@ const SomFlip = () => {
           setTotalLoss(prev => prev + parseFloat(betAmountInEther));
         }
   
+        // Kazanç durumunda 5 saniye, kayıp durumunda 10 saniye bekleyecek şekilde ayarla
+        const timeoutDuration = payout > 0 ? 10000 : 10000; // 5 saniye (kazanç) veya 10 saniye (kayıp)
         setTimeout(() => {
           setFlipResult(null);
-        }, 10000);
+        }, timeoutDuration);
+  
+        // Yeni: Bakiye güncellemesi
+        if (account && provider) {
+          const updatedBalance = await provider.getBalance(account); // await artık async fonksiyon içinde
+          setBalance(ethers.formatEther(updatedBalance));
+        }
       });
     }
   
@@ -84,34 +106,35 @@ const SomFlip = () => {
         contract.removeAllListeners("FlipResult");
       }
     };
-  }, [contract]);
-  
-  
-  
-  
-  
+  }, [contract, account, provider]);
 
   const connectWallet = async () => {
     if (!provider) return alert("Metamask not found");
     const signer = await provider.getSigner();
-    setAccount(await signer.getAddress());
+    const address = await signer.getAddress();
+    setAccount(address);
     setContract(new ethers.Contract(contractAddress, contractABI, signer));
+
+    // Yeni: Cüzdan bağlandığında bakiyeyi çek
+    const balance = await provider.getBalance(address);
+    setBalance(ethers.formatEther(balance));
   };
 
   const disconnectWallet = () => {
     setAccount(null);
     setContract(null);
+    setBalance(null); // Yeni: Cüzdan bağlantısı kesildiğinde bakiyeyi sıfırla
   };
 
   const SOMNIA_TESTNET_ID = 50312;
   const SOMNIA_RPC_URL = "https://dream-rpc.somnia.network";
-  
+
   const switchToSomnia = async () => {
     if (!window.ethereum) {
       alert("Metamask not found");
       return false;
     }
-  
+
     try {
       const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
       if (parseInt(currentChainId, 16) !== SOMNIA_TESTNET_ID) {
@@ -119,8 +142,7 @@ const SomFlip = () => {
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: ethers.toBeHex(SOMNIA_TESTNET_ID) }],
         });
-  
-        // Ağ değiştiği için provider'ı ve contract'ı yeniden oluştur
+
         const newProvider = new ethers.BrowserProvider(window.ethereum);
         setProvider(newProvider);
         const signer = await newProvider.getSigner();
@@ -140,13 +162,12 @@ const SomFlip = () => {
               blockExplorerUrls: ["https://somnia-devnet.socialscan.io"],
             }]
           });
-  
-          // Ağ eklendiğinde de provider'ı yeniden oluştur
+
           const newProvider = new ethers.BrowserProvider(window.ethereum);
           setProvider(newProvider);
           const signer = await newProvider.getSigner();
           setContract(new ethers.Contract(contractAddress, contractABI, signer));
-  
+
           return true;
         } catch (addError) {
           console.error("Failed to add Somnia Testnet:", addError);
@@ -158,7 +179,6 @@ const SomFlip = () => {
       }
     }
   };
-  
 
   const handleFlip = async () => {
     if (!contract) return alert("Connect your wallet first");
@@ -180,23 +200,24 @@ const SomFlip = () => {
   };
 
   return (
-    
     <div className="somflip-container">
-    {/* Somnia Logo - Container'ın içi */}
-    <div className="somnia-logo-container">
-      <img src={somniaLogo} alt="Somnia Logo" className="somnia-logo" />
-    </div>
+      <div className="somnia-logo-container">
+        <img src={somniaLogo} alt="Somnia Logo" className="somnia-logo" />
+      </div>
 
       <h2 className="header">Somnia Flip Game</h2>
       {account ? (
         <div className="wallet-info">
           <p className="account-info">Connected: {account}</p>
+          <p className="balance-info">
+  Balance: {balance ? `${parseFloat(balance).toFixed(4)} STT` : "Loading..."}
+</p>
           <button className="disconnect-wallet" onClick={disconnectWallet}>Disconnect</button>
         </div>
       ) : (
         <button className="connect-wallet" onClick={connectWallet}>Connect Wallet</button>
       )}
-      
+
       <div className="coin-container">
         <img src={coinImage} alt="Coin" className="coin-image" />
       </div>
@@ -222,44 +243,44 @@ const SomFlip = () => {
           <p><b>Player:</b> {flipResult.player}</p>
           <p><b>Your choice:</b> {flipResult.choice}</p>
           <p><b>Result:</b> {flipResult.result}</p>
-          <p className={flipResult.payout > 0 ? "win-text" : "lose-text"}>{flipResult.payout > 0 ? `You won: ${flipResult.payout} STT` : "You lost!"}</p>
+          <p className={flipResult.payout > 0 ? "win-text" : "lose-text"}>
+            {flipResult.payout > 0 ? `You won: ${payoutMapping[flipResult.payout.toString()] || flipResult.payout} STT` : "You lost!"}
+          </p>
         </div>
       )}
 
-<div className="last-flips-container">
-  <h3>Last Flips</h3>
-  <ul>
-  {lastFlips.map((flip, index) => (
-    <li key={index}>
-      <span><b>Choice:</b> {flip.choice}</span> | 
-      <span><b>Result:</b> {flip.result}</span> | 
-      <span><b>Bet:</b> {flip.bet} STT</span> | 
-      <span className={flip.payout > 0 ? "win-text" : "lose-text"}>
-        {flip.payout > 0 ? ` Won: ${flip.payout} STT` : ` Lost: ${flip.bet} STT`}
-      </span>
-      {flip.txHash ? (
-        <a 
-          href={`https://shannon-explorer.somnia.network/tx/${flip.txHash}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="view-tx"
-        >
-          View
-        </a>
-      ) : (
-        <span className="no-tx">No TX</span> // Eğer transaction hash yoksa bir mesaj göster
-      )}
-    </li>
-  ))}
-</ul>
-
-</div>
-
+      <div className="last-flips-container">
+        <h3>Last Flips</h3>
+        <ul>
+          {lastFlips.map((flip, index) => (
+            <li key={index}>
+              <span><b>Choice:</b> {flip.choice}</span> |
+              <span><b>Result:</b> {flip.result}</span> |
+              <span><b>Bet:</b> {flip.bet} STT</span> |
+              <span className={flip.payout > 0 ? "win-text" : "lose-text"}>
+                {flip.payout > 0 ? ` Won: ${flip.payout} STT` : ` Lost: ${flip.bet} STT`}
+              </span>
+              {flip.txHash ? (
+                <a
+                  href={`https://shannon-explorer.somnia.network/tx/${flip.txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="view-tx"
+                >
+                  View
+                </a>
+              ) : (
+                <span className="no-tx">No TX</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="somnia-logo-container">
-  <img src={somniaLogo} alt="Somnia Logo" className="somnia-logo" />
+        <img src={somniaLogo} alt="Somnia Logo" className="somnia-logo" />
+      </div>
 
-</div>
       <div className="stats-container">
         <h3>Stats</h3>
         <p>Total Won: {totalWin.toFixed(2)} STT</p>
