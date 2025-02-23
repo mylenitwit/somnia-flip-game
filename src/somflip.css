@@ -1,109 +1,129 @@
 .somflip-container {
-    position: relative; /* ÖNEMLİ: Logo container içinde kalır */
+  position: relative; /* ÖNEMLİ: Logo container içinde kalır */
 
-    max-width: 600px;
-    margin: 20px auto;
-    background: linear-gradient(135deg, #1e1e2f, #29293d);
-    color: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-  }
-  body{
-    background-color: #3a3a5a;
-  }
-  .header {
-    font-size: 26px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  
-  .wallet-info {
-    background: #2e2e45;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-  }
-  
-  .account-info {
-    font-size: 14px;
-    margin-bottom: 5px;
-  }
-  
-  .connect-wallet, .disconnect-wallet {
-    background: #ff9500;
-    color: #fff;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-  }
-  
-  .connect-wallet:hover, .disconnect-wallet:hover {
-    background: #ff7b00;
-  }
-  
-  .coin-container {
-    margin: 20px 0;
-  }
-  
-  .coin-image {
-    width: 80px;
-    height: 80px;
-    transition: transform 0.5s;
-  }
-  
-  .coin-selection {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 15px 0;
-  }
-  
-  .side-btn {
-    padding: 10px 15px;
-    font-size: 14px;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s;
-    color: white;
-    background: #555;
-  }
-  
-  .side-btn.active {
-    background: #ff4c4c;
-  }
-  
-  .side-btn:hover {
-    background: #ff7777;
-  }
-  
-  .bet-selection {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 15px;
-  }
-  
-  .bet-btn {
-    background: #00aaff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: 0.3s;
-  }
+  max-width: 600px;
+  margin: 20px auto;
+  background: linear-gradient(135deg, #1e1e2f, #29293d);
+  color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+body{
+  background-color: #3a3a5a;
+}
+.header {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.wallet-info {
+  background: #2e2e45;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.account-info {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.connect-wallet, .disconnect-wallet {
+  background: #ff9500;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.connect-wallet:hover, .disconnect-wallet:hover {
+  background: #ff7b00;
+}
+
+.coin-container {
+  margin: 20px 0;
+}
+
+.coin-image {
+  width: 80px;
+  height: 80px;
+  transition: transform 0.5s;
+}
+
+.coin-selection {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.side-btn {
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+  color: white;
+  background: #555;
+}
+
+.side-btn.active {
+  background: #ff4c4c;
+}
+
+.side-btn:hover {
+  background: #ff7777;
+}
+
+.bet-selection {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.bet-btn {
+  background: #00aaff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: 0.3s;
+}
 
 
+
+/* Somnia logosu - Container'ın sol üst köşesinde */
+.somnia-logo-container {
+position: absolute;
+top: 10px;
+left: 10px;
+}
+
+.somnia-logo {
+width: 100px;
+height: 50px;
+}
+
+/* Küçük ekranlar için */
+@media (max-width: 600px) {
+.somnia-logo {
+  width: 100px;
+  height: 40px;
+}
+}
 
 /* Somnia logosu - Container'ın sol üst köşesinde */
 .somnia-logo-container {
@@ -120,134 +140,130 @@
 /* Küçük ekranlar için */
 @media (max-width: 600px) {
   .somnia-logo {
-    width: 100px;
+    width: 40px;
     height: 40px;
   }
 }
-  
-  /* Somnia logosu - Container'ın sol üst köşesinde */
-  .somnia-logo-container {
-    position: absolute;
-    top: 10px;
-    left: 10px;
+
+
+.bet-btn.active {
+  background: #d215af;
+}
+
+.bet-btn:hover {
+  background: #d215af;
+}
+
+.flip-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.flip-btn:hover {
+  background: #218838;
+}
+
+.result-container {
+  background: #2c2c3d;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 15px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.result-container h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.last-flips-container {
+  background: #24243e;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 15px;
+  text-align: left;
+}
+
+.last-flips-container h3 {
+  font-size: 18px;
+  border-bottom: 2px solid #ff9500;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.last-flips-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.last-flips-container li {
+  font-size: 14px;
+  background: #33334d;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 5px;
+}
+
+.stats-container {
+  background: #1c1c2e;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.stats-container h3 {
+  font-size: 18px;
+  border-bottom: 2px solid #00aaff;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.stats-container p {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
   }
-  
-  .somnia-logo {
-    width: 100px;
-    height: 50px;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  /* Küçük ekranlar için */
-  @media (max-width: 600px) {
-    .somnia-logo {
-      width: 40px;
-      height: 40px;
-    }
-  }
-  
-  
-  .bet-btn.active {
-    background: #d215af;
-  }
-  
-  .bet-btn:hover {
-    background: #d215af;
-  }
-  
-  .flip-btn {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 10px;
-  }
-  
-  .flip-btn:hover {
-    background: #218838;
-  }
-  
-  .result-container {
-    background: #2c2c3d;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 15px;
-    animation: fadeIn 0.5s ease-in-out;
-  }
-  
-  .result-container h3 {
-    font-size: 18px;
-    margin-bottom: 8px;
-  }
-  
-  .last-flips-container {
-    background: #24243e;
-    padding: 12px;
-    border-radius: 8px;
-    margin-top: 15px;
-    text-align: left;
-  }
-  
-  .last-flips-container h3 {
-    font-size: 18px;
-    border-bottom: 2px solid #ff9500;
-    padding-bottom: 5px;
-    margin-bottom: 10px;
-  }
-  
-  .last-flips-container ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .last-flips-container li {
-    font-size: 14px;
-    background: #33334d;
-    padding: 8px;
-    border-radius: 6px;
-    margin-bottom: 5px;
-  }
-  
-  .stats-container {
-    background: #1c1c2e;
-    padding: 12px;
-    border-radius: 8px;
-    margin-top: 15px;
-  }
-  
-  .stats-container h3 {
-    font-size: 18px;
-    border-bottom: 2px solid #00aaff;
-    padding-bottom: 5px;
-    margin-bottom: 10px;
-  }
-  
-  .stats-container p {
-    font-size: 14px;
-    font-weight: bold;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  .win-text {
-    color: #43b643; /* Yeşil */
-    font-weight: bold;
-  }
-  
-  .lose-text {
-    color: #f04343; /* Kırmızı */
-    font-weight: bold;
-  }
-  
+}
+.win-text {
+  color: #43b643; /* Yeşil */
+  font-weight: bold;
+}
+
+.lose-text {
+  color: #f04343; /* Kırmızı */
+  font-weight: bold;
+}
+
+.view-tx {
+  color: #1e90ff; /* Güzel bir mavi tonu */
+  font-weight: bold;
+  text-decoration: none;
+  margin-left: 10px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  background: rgba(30, 144, 255, 0.1);
+}
+
+.view-tx:hover {
+  color: white;
+  background: #1e90ff;
+  text-decoration: none;
+}

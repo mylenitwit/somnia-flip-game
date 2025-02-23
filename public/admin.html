@@ -5,19 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SomFlip Admin Panel</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+    <style>
+        /* Genel Sayfa Stili */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Konteyner Stili */
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4A90E2;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        /* Buton Stili */
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Input Alanı Stili */
+        input[type="number"] {
+            width: 80%;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        /* Durum Mesajı */
+        #status {
+            margin-top: 20px;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* Başarı Durumu */
+        #status.success {
+            color: #2ecc71;
+        }
+    </style>
 </head>
 <body>
-    <h1>SomFlip Admin Panel</h1>
-    <button id="withdrawButton">Withdraw Funds</button>
-    <input type="number" id="amountToWithdraw" placeholder="Amount in Ether" />
-    <div id="status"></div>
+    <div class="container">
+        <h1>SomFlip Admin Panel</h1>
+        <input type="number" id="amountToWithdraw" placeholder="Amount in Ether" />
+        <button id="withdrawButton">Withdraw Funds</button>
+        <div id="status"></div>
+    </div>
 
     <script>
-        // Web3 instance
         let web3;
 
         // SomFlip contract address and ABI
-        const contractAddress = "0x35722c767158168eaa316c70e5b702a964964fc5";  // Replace with your contract address
+        const contractAddress = "0x014f851965f281d6112fc7f6dfe8c331c413eb9b";  // Replace with your contract address
         const contractABI = [
             {
                 "inputs": [],
@@ -129,6 +198,7 @@
                                 .send({ from: sender });
 
                             document.getElementById("status").innerText = "Funds withdrawn successfully!";
+                            document.getElementById("status").classList.add('success');
                         } catch (error) {
                             document.getElementById("status").innerText = "Error: " + error.message;
                         }
