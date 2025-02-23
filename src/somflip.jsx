@@ -224,7 +224,7 @@ const SomFlip = () => {
       <span><b>Result:</b> {flip.result}</span> | 
       <span><b>Bet:</b> {flip.bet} STT</span> | 
       <span className={flip.payout > 0 ? "win-text" : "lose-text"}>
-        {flip.payout > 0 ? `Won: ${flip.payout} STT` : `Lost: ${flip.bet} STT`}
+        {flip.payout > 0 ? ` Won: ${flip.payout} STT` : ` Lost: ${flip.bet} STT`}
       </span>
       {flip.txHash ? (
         <a 
