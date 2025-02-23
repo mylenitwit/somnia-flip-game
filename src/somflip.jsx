@@ -47,7 +47,9 @@ const SomFlip = () => {
       contract.on("FlipResult", (player, betAmount, choice, result, payout, event) => {
         setIsFlipping(false);
         setFlipResult({ player, betAmount, choice, result, payout });
-      
+        setCoinImage(result === 'Heads' ? headsImage : tailsImage);
+        const payoutInEther = ethers.formatEther(payout);
+        const betAmountInEther = ethers.formatEther(betAmount);
         console.log("Full Event Object:", event); // Event nesnesini komple yazdır
       
         const txHash = event.transactionHash || event.log?.transactionHash || event.receipt?.transactionHash;
@@ -58,14 +60,23 @@ const SomFlip = () => {
           {
             choice,
             result,
-            payout: parseFloat(ethers.formatEther(payout)).toFixed(2),
-            bet: parseFloat(ethers.formatEther(betAmount)).toFixed(2),
-            txHash, // Hash ekliyoruz
+            payout: parseFloat(payoutInEther).toFixed(2),
+            bet: parseFloat(betAmountInEther).toFixed(2),
+            txHash: txHash // TX Hash ekle
           },
-          ...prevFlips.slice(0, 4),
+          ...prevFlips.slice(0, 4)
         ]);
+  
+        if (payout > 0) {
+          setTotalWin(prev => prev + parseFloat(payoutInEther));
+        } else {
+          setTotalLoss(prev => prev + parseFloat(betAmountInEther));
+        }
+  
+        setTimeout(() => {
+          setFlipResult(null);
+        }, 10000);
       });
-      
     }
   
     return () => {
@@ -233,7 +244,7 @@ const SomFlip = () => {
           rel="noopener noreferrer" 
           className="view-tx"
         >
-             View TX
+          View
         </a>
       ) : (
         <span className="no-tx">No TX</span> // Eğer transaction hash yoksa bir mesaj göster
