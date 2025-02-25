@@ -230,9 +230,9 @@ const SomFlip = () => {
       <h2 className="header">Somnia Flip Game</h2>
       {account ? (
         <div className="wallet-info">
-          <p className="account-info"><b>Connected:</b> {account}</p>
+          <p className="account-info">Connected: {account}</p>
           <p className="balance-info">
-  <b>Balance:</b> {balance ? `${parseFloat(balance).toFixed(4)} STT` : "Loading..."}
+  Balance: {balance ? `${parseFloat(balance).toFixed(4)} STT` : "Loading..."}
 </p>
           <button className="disconnect-wallet" onClick={disconnectWallet}>Disconnect</button>
         </div>
