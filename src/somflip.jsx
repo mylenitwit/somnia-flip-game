@@ -262,7 +262,6 @@ const SomFlip = () => {
       {flipResult && (
         <div className="result-container">
           <h3><b>Result:</b></h3>
-          <p><b>Player:</b> {flipResult.player}</p>
           <p><b>Your choice:</b> {flipResult.choice}</p>
           <p><b>Result:</b> {flipResult.result}</p>
           <p><b>Transaction:</b> <a 
