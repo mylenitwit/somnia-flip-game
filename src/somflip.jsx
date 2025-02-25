@@ -18,6 +18,7 @@ const SomFlip = () => {
   const [selectedSide, setSelectedSide] = useState('Heads');
   const [betAmount, setBetAmount] = useState('0.05');
   const [account, setAccount] = useState(null);
+  const [isFlipping, setIsFlipping] = useState(false);
   const [provider, setProvider] = useState(null);
   const [contract, setContract] = useState(null);
   const [flipResult, setFlipResult] = useState(null);
