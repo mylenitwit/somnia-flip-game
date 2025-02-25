@@ -282,8 +282,8 @@ const SomFlip = () => {
     {flipResults.slice(0, 5).map((flip, index) => ( 
       <li key={index}>
         <span><b>Choice:</b> {flip.choice}</span> | 
-        <span><b>Result:</b> {flip.result}</span> | 
-        <span><b>Bet:</b> {flip.betAmount} STT</span> | 
+        <span><b> Result:</b> {flip.result}</span> | 
+        <span><b> Bet:</b> {flip.betAmount} STT</span> | 
         <span className={flip.payout > 0 ? "win-text" : "lose-text"}>
           {flip.payout > 0 ? ` Won: ${flip.payout} STT` : ` Lost: ${flip.betAmount} STT`}
         </span>
