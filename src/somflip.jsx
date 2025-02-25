@@ -13,14 +13,6 @@ const contractABI = [
   "event FlipResult(address indexed player, uint256 betAmount, string choice, string result, uint256 payout)"
 ];
 
-const payoutMapping = {
-  "200000000000000000": "0.2",
-  "100000000000000000": "0.1",
-  "20000000000000000": "0.02",
-  "500000000000000000": "0.5",
-  "1000000000000000000": "1",
-  "2000000000000000000": "2"
-};
 
 const SomFlip = () => {
   const [selectedSide, setSelectedSide] = useState('Heads');
@@ -29,12 +21,10 @@ const SomFlip = () => {
   const [provider, setProvider] = useState(null);
   const [contract, setContract] = useState(null);
   const [flipResult, setFlipResult] = useState(null);
-  const [isFlipping, setIsFlipping] = useState(false);
   const [coinImage, setCoinImage] = useState(tailsImage);
-  const [lastFlips, setLastFlips] = useState([]);
   const [totalWin, setTotalWin] = useState(0);
   const [totalLoss, setTotalLoss] = useState(0);
-  const [balance, setBalance] = useState(null); // Yeni: STT bakiyesi için state
+  const [balance, setBalance] = useState(null); 
 
   useEffect(() => {
     setCoinImage(selectedSide === "Heads" ? headsImage : tailsImage);
@@ -47,12 +37,12 @@ const SomFlip = () => {
     }
   }, []);
 
-  // Yeni: Cüzdan bağlandığında bakiyeyi çek
+
   useEffect(() => {
     const fetchBalance = async () => {
       if (account && provider) {
         const balance = await provider.getBalance(account);
-        setBalance(ethers.formatEther(balance)); // Bakiyeyi STT cinsinden göster
+        setBalance(ethers.formatEther(balance));
       }
     };
 
@@ -91,7 +81,7 @@ const SomFlip = () => {
     setAccount(address);
     setContract(new ethers.Contract(contractAddress, contractABI, signer));
 
-    // Yeni: Cüzdan bağlandığında bakiyeyi çek
+
     const balance = await provider.getBalance(address);
     setBalance(ethers.formatEther(balance));
   };
@@ -99,7 +89,7 @@ const SomFlip = () => {
   const disconnectWallet = () => {
     setAccount(null);
     setContract(null);
-    setBalance(null); // Yeni: Cüzdan bağlantısı kesildiğinde bakiyeyi sıfırla
+    setBalance(null); 
   };
 
   const SOMNIA_TESTNET_ID = 50312;
@@ -135,7 +125,7 @@ const SomFlip = () => {
               chainName: "Somnia Testnet",
               nativeCurrency: { name: "Ether", symbol: "STT", decimals: 18 },
               rpcUrls: [SOMNIA_RPC_URL],
-              blockExplorerUrls: ["https://somnia-devnet.socialscan.io"],
+              blockExplorerUrls: ["https://shannon-explorer.somnia.network"],
             }]
           });
 
@@ -156,7 +146,7 @@ const SomFlip = () => {
     }
   };
 
-  const [flipResults, setFlipResults] = useState([]); // Sonuçları tutmak için yeni bir state
+  const [flipResults, setFlipResults] = useState([]); 
 
   const handleFlip = async () => {
     if (!contract) return alert("Connect your wallet first");
@@ -170,26 +160,26 @@ const SomFlip = () => {
   
     try {
       const tx = await contract.flipCoin(selectedSide, { value: ethers.parseEther(betAmount) });
-      console.log("Transaction Hash:", tx.hash);  // İşlem hash'ini logluyoruz
+      console.log("Transaction Hash:", tx.hash); 
   
-      const receipt = await tx.wait();  // İşlemi blockchain'e yazmasını bekle
+      const receipt = await tx.wait();  
   
       console.log("Flip Transaction Receipt:", receipt);
-      console.log("Transaction Logs:", receipt.logs); // 📌 LOG'LARI YAZDIR!
+      console.log("Transaction Logs:", receipt.logs); 
   
       receipt.logs.forEach((log) => {
         try {
           const parsedLog = contract.interface.parseLog(log);
           console.log("✅ FlipResult Event Verisi:", parsedLog);
   
-          // Verileri doğru şekilde alalım
+        
           const player = parsedLog.args[0];  
           const betAmount = ethers.formatEther(parsedLog.args[1]);  
           const choice = parsedLog.args[2];  
           const result = parsedLog.args[3];  
           const payout = ethers.formatEther(parsedLog.args[4]);  
   
-          // Yeni sonuçları mevcut flipResults dizisine ekle
+          
           setFlipResults(prevResults => [
             {
               player,
@@ -197,7 +187,7 @@ const SomFlip = () => {
               choice,
               result,
               payout,
-              txHash: tx.hash, // İşlem hash'ini de ekliyoruz
+              txHash: tx.hash,
             },
             ...prevResults
           ]);
@@ -208,16 +198,16 @@ const SomFlip = () => {
             choice,
             result,
             payout,
-            txHash: tx.hash, // Sonuçların hemen ekranda da gösterilmesini sağla
+            txHash: tx.hash, 
           });
   
           setCoinImage(result === "Heads" ? headsImage : tailsImage);
 
 
           if (parseFloat(payout) > 0) {
-            setTotalWin((prevWin) => prevWin + parseFloat(payout)); // Kazanılan miktarı artır
+            setTotalWin((prevWin) => prevWin + parseFloat(payout));
           } else {
-            setTotalLoss((prevLoss) => prevLoss + parseFloat(betAmount)); // Kaybedilen miktarı artır
+            setTotalLoss((prevLoss) => prevLoss + parseFloat(betAmount)); 
           }
 
         } catch (error) {
@@ -240,9 +230,9 @@ const SomFlip = () => {
       <h2 className="header">Somnia Flip Game</h2>
       {account ? (
         <div className="wallet-info">
-          <p className="account-info">Connected: {account}</p>
+          <p className="account-info"><b>Connected:</b> {account}</p>
           <p className="balance-info">
-  Balance: {balance ? `${parseFloat(balance).toFixed(4)} STT` : "Loading..."}
+  <b>Balance:</b> {balance ? `${parseFloat(balance).toFixed(4)} STT` : "Loading..."}
 </p>
           <button className="disconnect-wallet" onClick={disconnectWallet}>Disconnect</button>
         </div>
@@ -290,7 +280,7 @@ const SomFlip = () => {
 <div className="last-flips-container">
   <h3>Last Flips</h3>
   <ul>
-    {flipResults.slice(0, 5).map((flip, index) => (  // Son 5 sonucu göster
+    {flipResults.slice(0, 5).map((flip, index) => ( 
       <li key={index}>
         <span><b>Choice:</b> {flip.choice}</span> | 
         <span><b>Result:</b> {flip.result}</span> | 
@@ -308,7 +298,7 @@ const SomFlip = () => {
             View
           </a>
         ) : (
-          <span className="no-tx">No TX</span> // Eğer transaction hash yoksa bir mesaj göster
+          <span className="no-tx">No TX</span> 
         )}
       </li>
     ))}
