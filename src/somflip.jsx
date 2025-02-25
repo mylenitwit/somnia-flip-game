@@ -60,53 +60,29 @@ const SomFlip = () => {
   }, [account, provider]);
 
   useEffect(() => {
-    if (contract) {
-      contract.on("FlipResult", async (player, betAmount, choice, result, payout, event) => { // async ekledik
-        setIsFlipping(false);
-        setFlipResult({ player, betAmount, choice, result, payout });
-        setCoinImage(result === 'Heads' ? headsImage : tailsImage);
-        const payoutInEther = ethers.formatEther(payout);
-        const betAmountInEther = ethers.formatEther(betAmount);
+    if (!contract) return;
   
-        const txHash = event.transactionHash || event.log?.transactionHash || event.receipt?.transactionHash;
+    const handleFlipResult = (player, betAmount, choice, result, payout, event) => {
+      console.log("FlipResult Event:", { player, betAmount, choice, result, payout, event });
   
-        setLastFlips(prevFlips => [
-          {
-            choice,
-            result,
-            payout: parseFloat(payoutInEther).toFixed(2),
-            bet: parseFloat(betAmountInEther).toFixed(2),
-            txHash: txHash
-          },
-          ...prevFlips.slice(0, 4)
-        ]);
-  
-        if (payout > 0) {
-          setTotalWin(prev => prev + parseFloat(payoutInEther));
-        } else {
-          setTotalLoss(prev => prev + parseFloat(betAmountInEther));
-        }
-  
-        // Kazanç durumunda 5 saniye, kayıp durumunda 10 saniye bekleyecek şekilde ayarla
-        const timeoutDuration = payout > 0 ? 10000 : 10000; // 5 saniye (kazanç) veya 10 saniye (kayıp)
-        setTimeout(() => {
-          setFlipResult(null);
-        }, timeoutDuration);
-  
-        // Yeni: Bakiye güncellemesi
-        if (account && provider) {
-          const updatedBalance = await provider.getBalance(account); // await artık async fonksiyon içinde
-          setBalance(ethers.formatEther(updatedBalance));
-        }
+      setFlipResult({
+        player,
+        betAmount: ethers.formatEther(betAmount),
+        choice,
+        result,
+        payout: ethers.formatEther(payout),
       });
-    }
+  
+      setCoinImage(result === "Heads" ? headsImage : tailsImage);
+    };
+  
+    contract.on("FlipResult", handleFlipResult);
   
     return () => {
-      if (contract) {
-        contract.removeAllListeners("FlipResult");
-      }
+      contract.off("FlipResult", handleFlipResult);
     };
-  }, [contract, account, provider]);
+  }, [contract]);
+  
 
   const connectWallet = async () => {
     if (!provider) return alert("Metamask not found");
@@ -180,24 +156,80 @@ const SomFlip = () => {
     }
   };
 
+  const [flipResults, setFlipResults] = useState([]); // Sonuçları tutmak için yeni bir state
+
   const handleFlip = async () => {
     if (!contract) return alert("Connect your wallet first");
-
+  
     const switched = await switchToSomnia();
     if (!switched) return;
-
+  
     setIsFlipping(true);
     setFlipResult(null);
     setCoinImage(spinningImage);
-
+  
     try {
       const tx = await contract.flipCoin(selectedSide, { value: ethers.parseEther(betAmount) });
-      await tx.wait();
+      console.log("Transaction Hash:", tx.hash);  // İşlem hash'ini logluyoruz
+  
+      const receipt = await tx.wait();  // İşlemi blockchain'e yazmasını bekle
+  
+      console.log("Flip Transaction Receipt:", receipt);
+      console.log("Transaction Logs:", receipt.logs); // 📌 LOG'LARI YAZDIR!
+  
+      receipt.logs.forEach((log) => {
+        try {
+          const parsedLog = contract.interface.parseLog(log);
+          console.log("✅ FlipResult Event Verisi:", parsedLog);
+  
+          // Verileri doğru şekilde alalım
+          const player = parsedLog.args[0];  
+          const betAmount = ethers.formatEther(parsedLog.args[1]);  
+          const choice = parsedLog.args[2];  
+          const result = parsedLog.args[3];  
+          const payout = ethers.formatEther(parsedLog.args[4]);  
+  
+          // Yeni sonuçları mevcut flipResults dizisine ekle
+          setFlipResults(prevResults => [
+            {
+              player,
+              betAmount,
+              choice,
+              result,
+              payout,
+              txHash: tx.hash, // İşlem hash'ini de ekliyoruz
+            },
+            ...prevResults
+          ]);
+  
+          setFlipResult({
+            player,
+            betAmount,
+            choice,
+            result,
+            payout,
+            txHash: tx.hash, // Sonuçların hemen ekranda da gösterilmesini sağla
+          });
+  
+          setCoinImage(result === "Heads" ? headsImage : tailsImage);
+
+
+          if (parseFloat(payout) > 0) {
+            setTotalWin((prevWin) => prevWin + parseFloat(payout)); // Kazanılan miktarı artır
+          } else {
+            setTotalLoss((prevLoss) => prevLoss + parseFloat(betAmount)); // Kaybedilen miktarı artır
+          }
+
+        } catch (error) {
+          console.error("⛔ Log parse edilemedi:", error);
+        }
+      });
     } catch (error) {
       alert("Transaction failed: " + error.message);
       setIsFlipping(false);
     }
   };
+
 
   return (
     <div className="somflip-container">
@@ -243,39 +275,45 @@ const SomFlip = () => {
           <p><b>Player:</b> {flipResult.player}</p>
           <p><b>Your choice:</b> {flipResult.choice}</p>
           <p><b>Result:</b> {flipResult.result}</p>
-          <p className={flipResult.payout > 0 ? "win-text" : "lose-text"}>
-            {flipResult.payout > 0 ? `You won: ${payoutMapping[flipResult.payout.toString()] || flipResult.payout} STT` : "You lost!"}
-          </p>
+          <p><b>Transaction:</b> <a 
+          href={`https://shannon-explorer.somnia.network/tx/${flipResult.txHash}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="view-tx"
+        >
+          View
+        </a></p>
+          <p className={flipResult.payout > 0 ? "win-text" : "lose-text"}>{flipResult.payout > 0 ? `You won: ${flipResult.payout} STT` : "You lost!"}</p>
         </div>
       )}
 
-      <div className="last-flips-container">
-        <h3>Last Flips</h3>
-        <ul>
-          {lastFlips.map((flip, index) => (
-            <li key={index}>
-              <span><b>Choice:</b> {flip.choice}</span> |
-              <span><b>Result:</b> {flip.result}</span> |
-              <span><b>Bet:</b> {flip.bet} STT</span> |
-              <span className={flip.payout > 0 ? "win-text" : "lose-text"}>
-                {flip.payout > 0 ? ` Won: ${flip.payout} STT` : ` Lost: ${flip.bet} STT`}
-              </span>
-              {flip.txHash ? (
-                <a
-                  href={`https://shannon-explorer.somnia.network/tx/${flip.txHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="view-tx"
-                >
-                  View
-                </a>
-              ) : (
-                <span className="no-tx">No TX</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
+<div className="last-flips-container">
+  <h3>Last Flips</h3>
+  <ul>
+    {flipResults.slice(0, 5).map((flip, index) => (  // Son 5 sonucu göster
+      <li key={index}>
+        <span><b>Choice:</b> {flip.choice}</span> | 
+        <span><b>Result:</b> {flip.result}</span> | 
+        <span><b>Bet:</b> {flip.betAmount} STT</span> | 
+        <span className={flip.payout > 0 ? "win-text" : "lose-text"}>
+          {flip.payout > 0 ? ` Won: ${flip.payout} STT` : ` Lost: ${flip.betAmount} STT`}
+        </span>
+        {flip.txHash ? (
+          <a 
+            href={`https://shannon-explorer.somnia.network/tx/${flip.txHash}`} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="view-tx"
+          >
+            View
+          </a>
+        ) : (
+          <span className="no-tx">No TX</span> // Eğer transaction hash yoksa bir mesaj göster
+        )}
+      </li>
+    ))}
+  </ul>
+</div>
 
       <div className="somnia-logo-container">
         <img src={somniaLogo} alt="Somnia Logo" className="somnia-logo" />
