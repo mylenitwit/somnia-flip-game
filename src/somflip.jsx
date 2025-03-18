@@ -2,6 +2,7 @@ import './somflip.css';
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import somniaLogo from './somnia-logo-light.svg'; // Somnia logosunu içe aktar
+import { Analytics } from "@vercel/analytics/react"
 
 import headsImage from './heads.png';
 import tailsImage from './tails.png';
@@ -227,7 +228,7 @@ const SomFlip = () => {
       <div className="somnia-logo-container">
         <img src={somniaLogo} alt="Somnia Logo" className="somnia-logo" />
       </div>
-
+      <Analytics/>
       <h2 className="header">Somnia Flip Game</h2>
       {account ? (
         <div className="wallet-info">
