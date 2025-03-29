@@ -27,6 +27,8 @@ const SomFlip = () => {
   const [totalWin, setTotalWin] = useState(0);
   const [totalLoss, setTotalLoss] = useState(0);
   const [balance, setBalance] = useState(null); 
+  const [walletInfoVisible, setWalletInfoVisible] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
     setCoinImage(selectedSide === "Heads" ? headsImage : tailsImage);
@@ -231,12 +233,27 @@ const SomFlip = () => {
       <Analytics/>
       <h2 className="header">Somnia Flip Game</h2>
       {account ? (
-        <div className="wallet-info">
-          <p className="account-info">Connected: {account}</p>
-          <p className="balance-info">
-  Balance: {balance ? `${parseFloat(balance).toFixed(4)} STT` : "Loading..."}
-</p>
-          <button className="disconnect-wallet" onClick={disconnectWallet}>Disconnect</button>
+        <div className="wallet-section">
+          <div className="wallet-buttons">
+            <div 
+              className="wallet-label"
+              onMouseEnter={() => setWalletInfoVisible(true)}
+              onMouseLeave={() => setWalletInfoVisible(false)}
+            >
+              Wallet
+              {walletInfoVisible && (
+                <div className="wallet-tooltip">
+                  <p className="account-info">Address: {account}</p>
+                  <p className="balance-info">
+                    Balance: {balance ? `${parseFloat(balance).toFixed(4)} STT` : "Loading..."}
+                  </p>
+                </div>
+              )}
+            </div>
+            <button className="disconnect-wallet" onClick={disconnectWallet}>
+              Disconnect
+            </button>
+          </div>
         </div>
       ) : (
         <button className="connect-wallet" onClick={connectWallet}>Connect Wallet</button>
