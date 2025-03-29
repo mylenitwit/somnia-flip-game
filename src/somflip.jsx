@@ -16,7 +16,7 @@ const contractABI = [
 
 
 const SomFlip = () => {
-  const [selectedSide, setSelectedSide] = useState('Heads');
+  const [selectedSide, setSelectedSide] = useState('Tails');
   const [betAmount, setBetAmount] = useState('0.05');
   const [account, setAccount] = useState(null);
   const [isFlipping, setIsFlipping] = useState(false);
